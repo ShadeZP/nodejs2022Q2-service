@@ -1,5 +1,6 @@
 import { Album } from 'src/album/entities/album.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { EntityDB } from 'src/models/db.interface';
 import { Track } from 'src/track/entities/track.entity';
 
@@ -64,4 +65,10 @@ export const TrackDB: EntityDB<Track> = {
       duration: 90,
     },
   },
+};
+
+export const FavoriteDB: Favorite = {
+  artists: ['0a35dd62-e09f-444b-a628-f4e7c6954f55'],
+  tracks: ['0a35dd62-e09f-444b-a628-f4e7c6954f46'],
+  albums: ['0a35dd62-e09f-444b-a628-f4e7c6954f56'],
 };

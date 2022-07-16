@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { AlbumService } from 'src/album/album.service';
 import { Album } from 'src/album/entities/album.entity';
 import { AlbumDB, ArtistDB } from 'src/db/db';
 import { addEntityToDB } from 'src/utils/add-entity';
