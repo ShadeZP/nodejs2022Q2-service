@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { TrackDB } from 'src/db/db';
+import { FavoriteDB, TrackDB } from 'src/db/db';
 import { addEntityToDB } from 'src/utils/add-entity';
 import { getAllFromDB } from 'src/utils/get-all-entities';
 import { removeEntityFromDB } from 'src/utils/remove-entity';
@@ -54,7 +54,12 @@ export class TrackService {
     if (!track) {
       throw new NotFoundException(`There is no track with id: ${id}`);
     } else {
-      return removeEntityFromDB(TrackDB, id);
+      await removeEntityFromDB(TrackDB, id);
+      await this.removeTrackFromFavorites(id);
     }
+  }
+
+  async removeTrackFromFavorites(trackId: string): Promise<void> {
+    FavoriteDB.tracks = FavoriteDB.tracks.filter((id) => id !== trackId);
   }
 }

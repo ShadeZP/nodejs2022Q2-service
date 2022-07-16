@@ -9,8 +9,8 @@ export class UserResponseDto {
   @IsString()
   login: string;
 
-  @Exclude()
   @IsString()
+  @Exclude()
   password: string;
 
   @IsNumber()

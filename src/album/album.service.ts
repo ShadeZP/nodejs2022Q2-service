@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { AlbumDB } from 'src/db/db';
+import { AlbumDB, FavoriteDB, TrackDB } from 'src/db/db';
+import { Track } from 'src/track/entities/track.entity';
 import { addEntityToDB } from 'src/utils/add-entity';
 import { getAllFromDB } from 'src/utils/get-all-entities';
 import { removeEntityFromDB } from 'src/utils/remove-entity';
@@ -47,13 +48,28 @@ export class AlbumService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const album = AlbumDB.entities[id];
 
     if (!album) {
       throw new NotFoundException(`There is no album with id: ${id}`);
     } else {
-      return await removeEntityFromDB(AlbumDB, id);
+      await removeEntityFromDB(AlbumDB, id);
+      await this.removeAlbumFromFavorites(id);
+      await this.removeAlbumFromTrack(id);
+    }
+  }
+
+  async removeAlbumFromFavorites(albumId: string): Promise<void> {
+    FavoriteDB.albums = FavoriteDB.albums.filter((id) => id !== albumId);
+  }
+
+  async removeAlbumFromTrack(id: string): Promise<void> {
+    const tracks: Track[] = await getAllFromDB<Track>(TrackDB);
+    const trackWithAlbum: Track = tracks.find((track) => track.albumId === id);
+
+    if (trackWithAlbum) {
+      TrackDB.entities[trackWithAlbum.id].albumId = null;
     }
   }
 }

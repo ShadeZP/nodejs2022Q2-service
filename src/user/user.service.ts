@@ -26,19 +26,21 @@ export class UserService {
 
     await addEntityToDB<User>(UserDB, user);
 
-    return new UserResponseDto(user);
+    return user;
   }
 
   async findAll(): Promise<UserResponseDto[]> {
-    const users = await getAllFromDB<User>(UserDB);
-
-    return users.map((user) => new UserResponseDto(user));
+    return await getAllFromDB<User>(UserDB);
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await UserDB.entities[id];
 
-    return new UserResponseDto(user);
+    if (!user) {
+      throw new NotFoundException(`There is no user with id: ${id}`);
+    }
+
+    return user;
   }
 
   async update(
@@ -47,7 +49,11 @@ export class UserService {
   ): Promise<UserResponseDto> {
     const user: User = await UserDB.entities[id];
 
-    if (user.password !== updatePasswordDto.oldPassowrd) {
+    if (!user) {
+      throw new NotFoundException(`There is no user with id: ${id}`);
+    }
+
+    if (user.password !== updatePasswordDto.oldPassword) {
       throw new ForbiddenException(`Wrong old password`);
     }
 
@@ -55,11 +61,12 @@ export class UserService {
       ...user,
       password: updatePasswordDto.newPassword,
       updatedAt: Date.now(),
+      version: user.version + 1,
     };
 
     UserDB.entities[id] = updatedUser;
 
-    return new UserResponseDto(updatedUser);
+    return updatedUser;
   }
 
   async remove(id: string): Promise<void> {

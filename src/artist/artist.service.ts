@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Album } from 'src/album/entities/album.entity';
-import { AlbumDB, ArtistDB } from 'src/db/db';
+import { AlbumDB, ArtistDB, FavoriteDB, TrackDB } from 'src/db/db';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
+import { Track } from 'src/track/entities/track.entity';
 import { addEntityToDB } from 'src/utils/add-entity';
 import { getAllFromDB } from 'src/utils/get-all-entities';
 import { removeEntityFromDB } from 'src/utils/remove-entity';
@@ -56,19 +58,36 @@ export class ArtistService {
       throw new NotFoundException(`There is no artist with id: ${id}`);
     } else {
       await removeEntityFromDB(ArtistDB, id);
+      await this.removeArtistFromFavorites(id);
       await this.removeArtistFromAlbum(id);
+      await this.removeArtistFromTrack(id);
       return;
     }
   }
 
   async removeArtistFromAlbum(artistId: string): Promise<void> {
-    const albums: Album[] = await await getAllFromDB<Album>(AlbumDB);
+    const albums: Album[] = await getAllFromDB<Album>(AlbumDB);
     const albumWithArtist: Album = albums.find(
       (album) => album.artistId === artistId,
     );
 
     if (albumWithArtist) {
       AlbumDB.entities[albumWithArtist.id].artistId = null;
+    }
+  }
+
+  async removeArtistFromFavorites(artistId: string): Promise<void> {
+    FavoriteDB.artists = FavoriteDB.artists.filter((id) => id !== artistId);
+  }
+
+  async removeArtistFromTrack(id: string): Promise<void> {
+    const tracks: Track[] = await getAllFromDB<Track>(TrackDB);
+    const trackWithArtist: Track = tracks.find(
+      (track) => track.artistId === id,
+    );
+
+    if (trackWithArtist) {
+      TrackDB.entities[trackWithArtist.id].artistId = null;
     }
   }
 }
