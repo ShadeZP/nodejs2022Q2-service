@@ -1,7 +1,9 @@
+import { Album } from 'src/album/entities/album.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
-import { entitiesDB } from 'src/models/db.interface';
+import { EntityDB } from 'src/models/db.interface';
+import { Track } from 'src/track/entities/track.entity';
 
-export const ArtistsDB: entitiesDB<Artist> = {
+export const ArtistDB: EntityDB<Artist> = {
   ids: [
     '0a35dd62-e09f-444b-a628-f4e7c6954f55',
     '0a35dd62-e09f-444b-a628-f4e7c6954f54',
@@ -16,6 +18,50 @@ export const ArtistsDB: entitiesDB<Artist> = {
       id: '0a35dd62-e09f-444b-a628-f4e7c6954f54',
       name: 'dsa',
       grammy: true,
+    },
+  },
+};
+
+export const AlbumDB: EntityDB<Album> = {
+  ids: [
+    '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+    '0a35dd62-e09f-444b-a628-f4e7c6954f58',
+  ],
+  entities: {
+    '0a35dd62-e09f-444b-a628-f4e7c6954f56': {
+      id: '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+      name: 'asdfgdfg',
+      year: 1990,
+      artistId: '0a35dd62-e09f-444b-a628-f4e7c6954f55',
+    },
+    '0a35dd62-e09f-444b-a628-f4e7c6954f58': {
+      id: '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+      name: 'asdfgdfg',
+      year: 1980,
+      artistId: null,
+    },
+  },
+};
+
+export const TrackDB: EntityDB<Track> = {
+  ids: [
+    '0a35dd62-e09f-444b-a628-f4e7c6954f46',
+    '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+  ],
+  entities: {
+    '0a35dd62-e09f-444b-a628-f4e7c6954f46': {
+      id: '0a35dd62-e09f-444b-a628-f4e7c6954f46',
+      name: 'dasd',
+      artistId: null,
+      albumId: 'null',
+      duration: 180,
+    },
+    '0a35dd62-e09f-444b-a628-f4e7c6954f56': {
+      id: '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+      name: 'werwer',
+      artistId: '0a35dd62-e09f-444b-a628-f4e7c6954f55',
+      albumId: '0a35dd62-e09f-444b-a628-f4e7c6954f56',
+      duration: 90,
     },
   },
 };

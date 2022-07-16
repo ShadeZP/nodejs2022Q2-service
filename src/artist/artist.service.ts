@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ArtistsDB } from 'src/db/db';
+import { AlbumService } from 'src/album/album.service';
+import { Album } from 'src/album/entities/album.entity';
+import { AlbumDB, ArtistDB } from 'src/db/db';
 import { addEntityToDB } from 'src/utils/add-entity';
 import { getAllFromDB } from 'src/utils/get-all-entities';
 import { removeEntityFromDB } from 'src/utils/remove-entity';
@@ -16,15 +18,16 @@ export class ArtistService {
       ...createArtistDto,
     };
 
-    return await addEntityToDB<Artist>(ArtistsDB, artist);
+    return await addEntityToDB<Artist>(ArtistDB, artist);
   }
 
   async findAll(): Promise<Artist[]> {
-    return await getAllFromDB<Artist>(ArtistsDB);
+    return await getAllFromDB<Artist>(ArtistDB);
   }
 
   async findOne(id: string): Promise<Artist> {
-    const artist = ArtistsDB.entities[id];
+    const artist = ArtistDB.entities[id];
+
     if (!artist) {
       throw new NotFoundException(`There is no artist with id: ${id}`);
     } else {
@@ -33,28 +36,40 @@ export class ArtistService {
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    console.log('updateArtistDto', updateArtistDto);
-    const artist = ArtistsDB.entities[id];
+    const artist = ArtistDB.entities[id];
 
     if (!artist) {
       throw new NotFoundException(`There is no artist with id: ${id}`);
     } else {
-      ArtistsDB.entities[id] = {
+      ArtistDB.entities[id] = {
         ...artist,
         ...updateArtistDto,
       };
 
-      return ArtistsDB.entities[id];
+      return ArtistDB.entities[id];
     }
   }
 
   async remove(id: string): Promise<void> {
-    const artist = ArtistsDB.entities[id];
+    const artist = ArtistDB.entities[id];
 
     if (!artist) {
       throw new NotFoundException(`There is no artist with id: ${id}`);
     } else {
-      return await removeEntityFromDB(ArtistsDB, id);
+      await removeEntityFromDB(ArtistDB, id);
+      await this.removeArtistFromAlbum(id);
+      return;
+    }
+  }
+
+  async removeArtistFromAlbum(artistId: string): Promise<void> {
+    const albums: Album[] = await await getAllFromDB<Album>(AlbumDB);
+    const albumWithArtist: Album = albums.find(
+      (album) => album.artistId === artistId,
+    );
+
+    if (albumWithArtist) {
+      AlbumDB.entities[albumWithArtist.id].artistId = null;
     }
   }
 }

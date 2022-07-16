@@ -40,7 +40,6 @@ export class ArtistController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
   ) {
-    console.log('updateArtistDto', updateArtistDto);
     return this.artistsService.update(id, updateArtistDto);
   }
 

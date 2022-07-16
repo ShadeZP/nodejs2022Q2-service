@@ -1,8 +1,8 @@
-import { entitiesDB } from 'src/models/db.interface';
+import { EntityDB } from 'src/models/db.interface';
 import { Entity } from 'src/models/entity.interface';
 
 export async function addEntityToDB<T extends Entity>(
-  db: entitiesDB<T>,
+  db: EntityDB<T>,
   entity: T,
 ): Promise<T> {
   const { id } = entity;
