@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Album } from 'src/album/entities/album.entity';
 import { AlbumDB, ArtistDB, FavoriteDB, TrackDB } from 'src/db/db';
-import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { addEntityToDB } from 'src/utils/add-entity';
 import { getAllFromDB } from 'src/utils/get-all-entities';
