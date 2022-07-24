@@ -13,6 +13,7 @@ import {
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { Album } from './entities/album.entity';
 
 @Controller('album')
 export class AlbumController {
@@ -20,17 +21,17 @@ export class AlbumController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createAlbumDto: CreateAlbumDto) {
+  create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
     return this.albumService.create(createAlbumDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Album[]> {
     return this.albumService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Album> {
     return this.albumService.findOne(id);
   }
 
@@ -38,7 +39,7 @@ export class AlbumController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ) {
+  ): Promise<Album> {
     return this.albumService.update(id, updateAlbumDto);
   }
 

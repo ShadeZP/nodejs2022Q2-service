@@ -16,7 +16,6 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UserResponseDto } from './dto/user-response.dto.';
-import { User } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
@@ -32,17 +31,19 @@ export class UserController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async findAll() {
-    const users: User[] = await this.userService.findAll();
-    return users.map((user) => new UserResponseDto(user));
+  async findAll(): Promise<UserResponseDto[]> {
+    return await this.userService.findAll();
+    // return users.map((user) => new UserResponseDto(user));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const user = await this.userService.findOne(id);
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<UserResponseDto> {
+    return await this.userService.findOne(id);
 
-    return new UserResponseDto(user);
+    // return new UserResponseDto(user);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -50,10 +51,10 @@ export class UserController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ) {
-    const user = await this.userService.update(id, updatePasswordDto);
+  ): Promise<UserResponseDto> {
+    return await this.userService.update(id, updatePasswordDto);
 
-    return new UserResponseDto(user);
+    // return new UserResponseDto(user);
   }
 
   @Delete(':id')

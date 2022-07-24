@@ -3,51 +3,49 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { UserDB } from 'src/db/db';
-import { addEntityToDB } from 'src/utils/add-entity';
-import { getAllFromDB } from 'src/utils/get-all-entities';
-import { removeEntityFromDB } from 'src/utils/remove-entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UserResponseDto } from './dto/user-response.dto.';
 import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const user: User = {
-      ...createUserDto,
-      id: randomUUID(),
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+    const createdUser = this.userRepository.create(createUserDto);
 
-    await addEntityToDB<User>(UserDB, user);
-
-    return user;
+    return (await this.userRepository.save(createdUser)).toResponse();
   }
 
   async findAll(): Promise<UserResponseDto[]> {
-    return await getAllFromDB<User>(UserDB);
+    const users = await this.userRepository.find();
+
+    return users.map((user) => user.toResponse());
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
-    const user = await UserDB.entities[id];
+  async findOne(userId: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new NotFoundException(`There is no user with id: ${id}`);
+      throw new NotFoundException(`There is no user with id: ${userId}`);
     }
 
-    return user;
+    return user.toResponse();
   }
 
   async update(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserResponseDto> {
-    const user: User = await UserDB.entities[id];
+    const user: User = await await this.userRepository.findOne({
+      where: { id: id },
+    });
 
     if (!user) {
       throw new NotFoundException(`There is no user with id: ${id}`);
@@ -57,25 +55,21 @@ export class UserService {
       throw new ForbiddenException(`Wrong old password`);
     }
 
-    const updatedUser: User = {
+    const updatedUser = {
       ...user,
       password: updatePasswordDto.newPassword,
       updatedAt: Date.now(),
       version: user.version + 1,
     };
 
-    UserDB.entities[id] = updatedUser;
-
-    return updatedUser;
+    return (await this.userRepository.save(updatedUser)).toResponse();
   }
 
   async remove(id: string): Promise<void> {
-    const user: User = await UserDB.entities[id];
+    const result = await this.userRepository.delete(id);
 
-    if (!user) {
+    if (result.affected === 0) {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
-
-    await removeEntityFromDB(UserDB, id);
   }
 }

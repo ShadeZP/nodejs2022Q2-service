@@ -1,65 +1,68 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { FavoriteDB, TrackDB } from 'src/db/db';
-import { addEntityToDB } from 'src/utils/add-entity';
-import { getAllFromDB } from 'src/utils/get-all-entities';
-import { removeEntityFromDB } from 'src/utils/remove-entity';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { Track } from './entities/track.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TrackService {
-  async create(createTrackDto: CreateTrackDto) {
-    const track = {
-      id: randomUUID(),
-      ...createTrackDto,
+  constructor(
+    @InjectRepository(Track)
+    private trackRepository: Repository<Track>,
+  ) {}
+
+  async create(createTrackDto: CreateTrackDto): Promise<Track> {
+    return await this.trackRepository.save(createTrackDto);
+  }
+
+  async findAll(): Promise<Track[]> {
+    return await this.trackRepository.find();
+  }
+
+  async findOne(id: string): Promise<Track> {
+    const track = await this.trackRepository.findOne({ where: { id: id } });
+
+    if (!track) {
+      throw new NotFoundException(`There is no track with id: ${id}`);
+    }
+
+    return track;
+  }
+
+  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
+    const track = await this.trackRepository.findOne({ where: { id: id } });
+
+    if (!track) {
+      throw new NotFoundException(`There is no track with id: ${id}`);
+    }
+
+    const updatedTrack = {
+      ...track,
+      ...updateTrackDto,
     };
 
-    return await addEntityToDB<Track>(TrackDB, track);
-  }
-
-  async findAll() {
-    return await getAllFromDB<Track>(TrackDB);
-  }
-
-  async findOne(id: string) {
-    const track = TrackDB.entities[id];
-
-    if (!track) {
-      throw new NotFoundException(`There is no track with id: ${id}`);
-    } else {
-      return track;
-    }
-  }
-
-  async update(id: string, updateTrackDto: UpdateTrackDto) {
-    const track = TrackDB.entities[id];
-
-    if (!track) {
-      throw new NotFoundException(`There is no track with id: ${id}`);
-    } else {
-      TrackDB.entities[id] = {
-        ...track,
-        ...updateTrackDto,
-      };
-
-      return TrackDB.entities[id];
-    }
+    return await this.trackRepository.save(updatedTrack);
   }
 
   async remove(id: string) {
-    const track = TrackDB.entities[id];
+    // const track = TrackDB.entities[id];
 
-    if (!track) {
+    // if (!track) {
+    //   throw new NotFoundException(`There is no track with id: ${id}`);
+    // } else {
+    //   await removeEntityFromDB(TrackDB, id);
+    //   await this.removeTrackFromFavorites(id);
+    // }
+
+    const result = await this.trackRepository.delete(id);
+
+    if (result.affected === 0) {
       throw new NotFoundException(`There is no track with id: ${id}`);
-    } else {
-      await removeEntityFromDB(TrackDB, id);
-      await this.removeTrackFromFavorites(id);
     }
   }
 
-  async removeTrackFromFavorites(trackId: string): Promise<void> {
-    FavoriteDB.tracks = FavoriteDB.tracks.filter((id) => id !== trackId);
-  }
+  // async removeTrackFromFavorites(trackId: string): Promise<void> {
+  //   FavoriteDB.tracks = FavoriteDB.tracks.filter((id) => id !== trackId);
+  // }
 }

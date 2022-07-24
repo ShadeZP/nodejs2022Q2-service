@@ -31,7 +31,7 @@ export class ArtistController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Artist> {
     return this.artistsService.findOne(id);
   }
 
@@ -39,7 +39,7 @@ export class ArtistController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
-  ) {
+  ): Promise<Artist> {
     return this.artistsService.update(id, updateArtistDto);
   }
 

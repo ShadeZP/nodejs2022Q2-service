@@ -13,6 +13,7 @@ import {
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
+import { Track } from './entities/track.entity';
 
 @Controller('track')
 export class TrackController {
@@ -25,12 +26,12 @@ export class TrackController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Track[]> {
     return this.trackService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Track> {
     return this.trackService.findOne(id);
   }
 
@@ -38,7 +39,7 @@ export class TrackController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-  ) {
+  ): Promise<Track> {
     return this.trackService.update(id, updateTrackDto);
   }
 
