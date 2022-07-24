@@ -4,19 +4,19 @@ import { DataSourceOptions } from 'typeorm';
 dotenv.config();
 
 export default {
-  type: 'postgres',
-  host: 'postgres',
-  port: 5432,
-  username: 'postgres',
-  password: 'postgres',
-  database: 'postgres',
-  entities: [process.env.TYPEORM_ENTITIES],
-  migrations: [process.env.TYPEORM_MIGRATIONS],
+  type: process.env.TYPEORM_CONNECTION,
+  host: 'postgresDB',
+  port: +process.env.TYPEORM_PORT,
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
+  entities: ['dist/**/*entity.js'],
+  migrations: ['dist/migrations/*.js'],
   migrationsRun: true,
-  synchronize: false,
+  synchronize: true,
   autoLoadEntities: true,
   cli: {
-    entitiesDir: 'src/**/*.entity{ .ts,.js}',
+    entitiesDir: 'src/**/*.entity{.ts,.js}',
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
   },
 } as DataSourceOptions;

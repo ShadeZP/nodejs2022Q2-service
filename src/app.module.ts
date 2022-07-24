@@ -12,19 +12,7 @@ import configService from '../ormconfig';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'postgres',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
-      entities: ['dist/**/*entity.js'],
-      migrations: ['dist/migrations/*.js'],
-      migrationsRun: true,
-      synchronize: true,
-      autoLoadEntities: true,
-    }),
+    TypeOrmModule.forRoot(configService),
     ArtistModule,
     AlbumModule,
     TrackModule,
