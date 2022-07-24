@@ -9,11 +9,14 @@ export class Favorite {
   id: string;
 
   @OneToMany((type) => Artist, (artist) => artist.favorite)
+  @JoinColumn({ name: 'artists' })
   artists: Artist[]; // favorite artists ids
 
   @OneToMany((type) => Album, (album) => album.favorite)
-  albums: Track[]; // favorite albums ids
+  @JoinColumn({ name: 'albums' })
+  albums: Album[]; // favorite albums ids
 
   @OneToMany((type) => Track, (track) => track.favorite)
+  @JoinColumn({ name: 'tracks' })
   tracks: Track[]; // favorite tracks ids
 }

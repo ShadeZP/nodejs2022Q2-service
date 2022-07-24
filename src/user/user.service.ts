@@ -18,7 +18,10 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const createdUser = this.userRepository.create(createUserDto);
+    const user = {
+      ...createUserDto,
+    };
+    const createdUser = this.userRepository.create(user);
 
     return (await this.userRepository.save(createdUser)).toResponse();
   }
@@ -54,15 +57,13 @@ export class UserService {
     if (user.password !== updatePasswordDto.oldPassword) {
       throw new ForbiddenException(`Wrong old password`);
     }
-
     const updatedUser = {
       ...user,
       password: updatePasswordDto.newPassword,
-      updatedAt: Date.now(),
-      version: user.version + 1,
     };
 
-    return (await this.userRepository.save(updatedUser)).toResponse();
+    const res = await this.userRepository.save(updatedUser);
+    return new UserResponseDto(res);
   }
 
   async remove(id: string): Promise<void> {

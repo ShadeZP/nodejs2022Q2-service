@@ -4,9 +4,8 @@ import { Track } from 'src/track/entities/track.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -26,14 +25,13 @@ export class Artist {
   })
   favorite;
 
-  @OneToOne((type) => Track, {
+  @OneToMany((type) => Track, (track) => track.artist, {
     onDelete: 'SET NULL',
   })
-  track;
+  tracks;
 
-  @OneToOne((type) => Album, {
+  @OneToMany((type) => Album, (album) => album.artist, {
     onDelete: 'SET NULL',
   })
-  @JoinColumn()
-  album;
+  albums;
 }

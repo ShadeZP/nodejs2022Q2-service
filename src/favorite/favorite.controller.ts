@@ -31,11 +31,11 @@ export class FavoriteController {
   //   return this.favoriteService.removeTrack(id);
   // }
 
-  // @Post('album/:id')
-  // @HttpCode(HttpStatus.CREATED)
-  // addAlbum(@Param('id', ParseUUIDPipe) id: string) {
-  //   return this.favoriteService.addAlbum(id);
-  // }
+  @Post('album/:id')
+  @HttpCode(HttpStatus.CREATED)
+  addAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favoriteService.addAlbum(id);
+  }
 
   // @Delete('album/:id')
   // @HttpCode(HttpStatus.NO_CONTENT)

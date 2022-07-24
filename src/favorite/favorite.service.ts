@@ -14,6 +14,8 @@ import { Favorite } from './entities/favorite.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AlbumService } from 'src/album/album.service';
+import { TrackService } from 'src/track/track.service';
+import { ArtistService } from 'src/artist/artist.service';
 
 @Injectable()
 export class FavoriteService implements OnModuleInit {
@@ -21,6 +23,8 @@ export class FavoriteService implements OnModuleInit {
     @InjectRepository(Favorite)
     private favoriteRepository: Repository<Favorite>,
     private albumService: AlbumService,
+    private trackService: TrackService,
+    private artistService: ArtistService,
   ) {}
 
   onModuleInit() {
@@ -29,55 +33,32 @@ export class FavoriteService implements OnModuleInit {
 
   mockId = 'mockId';
   async findAll(): Promise<Favorite> {
-    // const albumEntities: Album[] = FavoriteDB.albums.map(
-    //   (id) => AlbumDB.entities[id],
-    // );
-    // const artistEntities: Artist[] = FavoriteDB.artists.map(
-    //   (id) => ArtistDB.entities[id],
-    // );
-    // const trackEntities: Track[] = FavoriteDB.tracks.map(
-    //   (id) => TrackDB.entities[id],
-    // );
-
-    // const favoritesResponse: FavoriteResponseDto = {
-    //   tracks: trackEntities,
-    //   albums: albumEntities,
-    //   artists: artistEntities,
-    // };
-
-    // return favoritesResponse;
     const res = await this.favoriteRepository.findOne({
       where: { id: this.mockId },
+      relations: {
+        albums: true,
+        artists: true,
+        tracks: true,
+      },
     });
-    console.log('res', res);
+
     return res;
   }
 
-  private async _createInitFavorite(): Promise<Favorite> {
-    const res = await this.favoriteRepository.save({
-      id: this.mockId,
-      albums: [],
-      artists: [],
-      tracks: [],
-    });
-    console.log(res);
-    return res;
+  async addTrack(id: string): Promise<void> {
+    const track = await this.trackService.findOne(id);
+
+    if (!track) {
+      throw new HttpException(
+        `There is no track with id: ${id}`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const favorite = await this.findAll();
+    favorite.tracks = [...favorite.tracks, track];
+    await this.favoriteRepository.save(favorite);
   }
-
-  // async addTrack(id: string): Promise<void> {
-  //   const track = TrackDB.entities[id];
-
-  //   if (!track) {
-  //     throw new HttpException(
-  //       `There is no track with id: ${id}`,
-  //       HttpStatus.UNPROCESSABLE_ENTITY,
-  //     );
-  //   }
-
-  //   if (!FavoriteDB.tracks.includes(id)) {
-  //     FavoriteDB.tracks.push(id);
-  //   }
-  // }
 
   // async removeTrack(id: string): Promise<void> {
   //   if (!FavoriteDB.tracks.includes(id)) {
@@ -97,12 +78,9 @@ export class FavoriteService implements OnModuleInit {
       );
     }
 
-    // if (!FavoriteDB.albums.includes(id)) {
-    //   FavoriteDB.albums.push(id);
-    // }
-
     const favorite = await this.findAll();
-    this.favoriteRepository.create();
+    favorite.albums = [...favorite.albums, album];
+    await this.favoriteRepository.save(favorite);
   }
 
   // async removeAlbum(id: string): Promise<void> {
@@ -113,20 +91,20 @@ export class FavoriteService implements OnModuleInit {
   //   FavoriteDB.albums = FavoriteDB.albums.filter((albumId) => albumId !== id);
   // }
 
-  // async addArtist(id: string): Promise<void> {
-  //   const artist = ArtistDB.entities[id];
+  async addArtist(id: string): Promise<void> {
+    const artist = await this.artistService.findOne(id);
 
-  //   if (!artist) {
-  //     throw new HttpException(
-  //       `There is no artist with id: ${id}`,
-  //       HttpStatus.UNPROCESSABLE_ENTITY,
-  //     );
-  //   }
+    if (!artist) {
+      throw new HttpException(
+        `There is no artist with id: ${id}`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
 
-  //   if (!FavoriteDB.artists.includes(id)) {
-  //     FavoriteDB.artists.push(id);
-  //   }
-  // }
+    const favorite = await this.findAll();
+    favorite.artists = [...favorite.artists, artist];
+    await this.favoriteRepository.save(favorite);
+  }
 
   // async removeArtist(id: string): Promise<void> {
   //   if (!FavoriteDB.artists.includes(id)) {
@@ -137,4 +115,13 @@ export class FavoriteService implements OnModuleInit {
   //     (artistId) => artistId !== id,
   //   );
   // }
+
+  private async _createInitFavorite(): Promise<Favorite> {
+    return await this.favoriteRepository.save({
+      id: this.mockId,
+      albums: [],
+      artists: [],
+      tracks: [],
+    });
+  }
 }

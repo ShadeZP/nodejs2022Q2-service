@@ -6,15 +6,31 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ArtistService } from 'src/artist/artist.service';
+import { Artist } from 'src/artist/entities/artist.entity';
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
+    private artistService: ArtistService,
   ) {}
 
   async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
-    return await this.albumRepository.save(createAlbumDto);
+    const { artistId } = createAlbumDto;
+    const album: Album | CreateAlbumDto = createAlbumDto;
+
+    if (artistId) {
+      const artist: Artist = await this.artistService.findOne(artistId);
+
+      if (!artist) {
+        throw new NotFoundException(`There is no artist with id: ${artistId}`);
+      }
+
+      Object.assign(album, { artist });
+    }
+
+    return await this.albumRepository.save(album);
   }
 
   async findAll(): Promise<Album[]> {
@@ -38,12 +54,20 @@ export class AlbumService {
       throw new NotFoundException(`There is no album with id: ${id}`);
     }
 
-    const updatedAlbum = {
-      ...album,
-      ...updateAlbumDto,
-    };
+    const { artistId } = updateAlbumDto;
+    if (artistId) {
+      const artist: Artist = await this.artistService.findOne(artistId);
 
-    return await this.albumRepository.save(updatedAlbum);
+      if (!artist) {
+        throw new NotFoundException(`There is no artist with id: ${artistId}`);
+      }
+
+      Object.assign(album, { artist });
+    }
+
+    Object.assign(album, updateAlbumDto);
+
+    return await this.albumRepository.save(album);
   }
 
   async remove(id: string): Promise<void> {

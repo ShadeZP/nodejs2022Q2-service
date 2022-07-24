@@ -18,22 +18,22 @@ export class Track {
   @Column()
   name: string;
 
-  // @Column({ nullable: true })
-  // artistId: string; // refers to Artist
+  @Column({ nullable: true })
+  artistId: string; // refers to Artist
 
-  // @Column({ nullable: true })
-  // albumId: string; // refers to Album
-
-  @OneToOne((type) => Artist)
-  @JoinColumn()
-  artist;
-
-  @OneToOne((type) => Album)
-  @JoinColumn()
-  album;
+  @Column({ nullable: true })
+  albumId: string; // refers to Album
 
   @Column()
   duration: number; // integer number
+
+  @ManyToOne((type) => Artist, (artist) => artist.tracks, {
+    onDelete: 'SET NULL',
+  })
+  artist;
+
+  @ManyToOne((type) => Album, (album) => album.tracks, { onDelete: 'SET NULL' })
+  album;
 
   @ManyToOne((type) => Favorite, (favorite) => favorite.tracks, {
     onDelete: 'SET NULL',
