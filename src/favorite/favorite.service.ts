@@ -46,9 +46,11 @@ export class FavoriteService implements OnModuleInit {
   }
 
   async addTrack(id: string): Promise<void> {
-    const track = await this.trackService.findOne(id);
+    let track: Track;
 
-    if (!track) {
+    try {
+      track = await this.trackService.findOne(id);
+    } catch {
       throw new HttpException(
         `There is no track with id: ${id}`,
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -57,21 +59,26 @@ export class FavoriteService implements OnModuleInit {
 
     const favorite = await this.findAll();
     favorite.tracks = [...favorite.tracks, track];
+
     await this.favoriteRepository.save(favorite);
   }
 
-  // async removeTrack(id: string): Promise<void> {
-  //   if (!FavoriteDB.tracks.includes(id)) {
-  //     throw new NotFoundException(`There is no track with id: ${id}`);
-  //   }
+  async removeTrack(id: string): Promise<void> {
+    const favorite = await this.findAll();
+    const track = favorite.tracks.find((track) => track.id === id);
+    if (!track) {
+      throw new NotFoundException(`There is no track with id: ${id}`);
+    }
 
-  //   FavoriteDB.tracks = FavoriteDB.tracks.filter((trackId) => trackId !== id);
-  // }
+    favorite.tracks = favorite.tracks.filter((track) => track.id !== id);
+    await this.favoriteRepository.save(favorite);
+  }
 
   async addAlbum(id: string): Promise<void> {
-    const album = await this.albumService.findOne(id);
-
-    if (!album) {
+    let album: Album;
+    try {
+      album = await this.albumService.findOne(id);
+    } catch {
       throw new HttpException(
         `There is no album with id: ${id}`,
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -80,21 +87,27 @@ export class FavoriteService implements OnModuleInit {
 
     const favorite = await this.findAll();
     favorite.albums = [...favorite.albums, album];
+
     await this.favoriteRepository.save(favorite);
   }
 
-  // async removeAlbum(id: string): Promise<void> {
-  //   if (!FavoriteDB.albums.includes(id)) {
-  //     throw new NotFoundException(`There is no albums with id: ${id}`);
-  //   }
+  async removeAlbum(id: string): Promise<void> {
+    const favorite = await this.findAll();
+    const album = favorite.albums.find((album) => album.id === id);
 
-  //   FavoriteDB.albums = FavoriteDB.albums.filter((albumId) => albumId !== id);
-  // }
+    if (!album) {
+      throw new NotFoundException(`There is no albums with id: ${id}`);
+    }
+
+    favorite.albums = favorite.albums.filter((album) => album.id !== id);
+    await this.favoriteRepository.save(favorite);
+  }
 
   async addArtist(id: string): Promise<void> {
-    const artist = await this.artistService.findOne(id);
-
-    if (!artist) {
+    let artist: Artist;
+    try {
+      artist = await this.artistService.findOne(id);
+    } catch {
       throw new HttpException(
         `There is no artist with id: ${id}`,
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -103,18 +116,21 @@ export class FavoriteService implements OnModuleInit {
 
     const favorite = await this.findAll();
     favorite.artists = [...favorite.artists, artist];
+
     await this.favoriteRepository.save(favorite);
   }
 
-  // async removeArtist(id: string): Promise<void> {
-  //   if (!FavoriteDB.artists.includes(id)) {
-  //     throw new NotFoundException(`There is no artist with id: ${id}`);
-  //   }
+  async removeArtist(id: string): Promise<void> {
+    const favorite = await this.findAll();
+    const artist = favorite.artists.find((artist) => artist.id === id);
 
-  //   FavoriteDB.artists = FavoriteDB.artists.filter(
-  //     (artistId) => artistId !== id,
-  //   );
-  // }
+    if (!artist) {
+      throw new NotFoundException(`There is no artist with id: ${id}`);
+    }
+
+    favorite.artists = favorite.artists.filter((artist) => artist.id !== id);
+    await this.favoriteRepository.save(favorite);
+  }
 
   private async _createInitFavorite(): Promise<Favorite> {
     return await this.favoriteRepository.save({
