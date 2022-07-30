@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 // import { AlbumDB } from 'src/db/db';
-import { getAllFromDB } from 'src/utils/get-all-entities';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';

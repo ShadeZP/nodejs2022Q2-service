@@ -9,7 +9,6 @@ import { Album } from 'src/album/entities/album.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 // import { AlbumDB, ArtistDB, FavoriteDB, TrackDB } from 'src/db/db';
 import { Track } from 'src/track/entities/track.entity';
-import { FavoriteResponseDto } from './dto/favorite-response.dto';
 import { Favorite } from './entities/favorite.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

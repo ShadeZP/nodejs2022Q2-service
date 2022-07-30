@@ -17,6 +17,6 @@ export default {
   autoLoadEntities: true,
   cli: {
     entitiesDir: 'src/**/*.entity{.ts,.js}',
-    migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
+    migrationsDir: 'src/migrations/*{.ts,.js}',
   },
 } as DataSourceOptions;
