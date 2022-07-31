@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Favorite } from './entities/favorite.entity';
 import { FavoriteService } from './favorite.service';
 
 @Controller('favs')
@@ -15,7 +16,7 @@ export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
   @Get()
-  findAll() {
+  findAll(): Promise<Favorite> {
     return this.favoriteService.findAll();
   }
 
