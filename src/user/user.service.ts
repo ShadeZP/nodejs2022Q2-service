@@ -46,7 +46,7 @@ export class UserService {
     id: string,
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserResponseDto> {
-    const user: User = await await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       where: { id: id },
     });
 
