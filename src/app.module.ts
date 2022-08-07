@@ -8,7 +8,10 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 import configService from '../ormconfig';
+import { APP_GUARD } from '@nestjs/core';
+import { AtGuard } from 'src/common/guards/at.guard';
 
 @Module({
   imports: [
@@ -22,8 +25,15 @@ import configService from '../ormconfig';
       isGlobal: true,
       envFilePath: '../.env',
     }),
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    },
+    AppService,
+  ],
 })
 export class AppModule {}

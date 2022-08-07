@@ -37,6 +37,9 @@ export class User {
   })
   updatedAt: number; // timestamp of last update
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   toResponse(): UserResponseDto {
     return new UserResponseDto(this);
   }
